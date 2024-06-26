@@ -22,5 +22,8 @@ This plugin adds a "Generate Screenshot" option to specified post types. It uses
 
 == Changelog ==
 
+= 1.1.0 =
+* Removing API key from code and storing in database for better security and so users can save their own API keys.
+
 = 1.0.0 =
 * Initial release.
