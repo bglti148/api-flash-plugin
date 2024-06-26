@@ -24,6 +24,8 @@ class Generate_Screenshot {
         add_filter( 'page_row_actions', array( $this, 'add_generate_screenshot_link' ), 10, 2 );
         add_action( 'admin_init', array( $this, 'handle_generate_screenshot' ) );
         add_action( 'admin_notices', array( $this, 'screenshot_admin_notice' ) );
+        add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
+        add_action( 'admin_init', array( $this, 'register_settings' ) );
     }
 
     public function add_generate_screenshot_link( $actions, $post ) {
@@ -63,7 +65,12 @@ class Generate_Screenshot {
     }
 
     private function generate_screenshot_for_post( $post ) {
-        $access_key = 'b00cdb1539d6472e85f0b6fd7ad1d1cf';
+        $access_key = get_option( 'generate_screenshot_api_key' );
+        if ( ! $access_key ) {
+            error_log( 'Screenshot API key is not set.' );
+            return false;
+        }
+        
         $post_url = urlencode( get_permalink( $post->ID ) );
         $element = urlencode( '.demo-ui-block' );
         $api_url = "https://api.apiflash.com/v1/urltoimage?access_key={$access_key}&url={$post_url}&format=webp&fresh=true&quality=100&element={$element}";
@@ -127,5 +134,54 @@ class Generate_Screenshot {
         } elseif ( isset( $_GET['screenshot_error'] ) ) {
             echo '<div class="notice notice-error is-dismissible"><p>Failed to generate screenshot.</p></div>';
         }
+    }
+
+    public function add_settings_page() {
+        add_options_page(
+            'Screenshot Configs',
+            'Screenshot Configs',
+            'manage_options',
+            'screenshot-configs',
+            array( $this, 'create_settings_page' )
+        );
+    }
+
+    public function create_settings_page() {
+        ?>
+        <div class="wrap">
+            <h1>Screenshot Configs</h1>
+            <form method="post" action="options.php">
+                <?php
+                settings_fields( 'generate_screenshot_settings_group' );
+                do_settings_sections( 'screenshot-configs' );
+                submit_button();
+                ?>
+            </form>
+        </div>
+        <?php
+    }
+
+    public function register_settings() {
+        register_setting( 'generate_screenshot_settings_group', 'generate_screenshot_api_key' );
+
+        add_settings_section(
+            'generate_screenshot_settings_section',
+            'API Configuration',
+            null,
+            'screenshot-configs'
+        );
+
+        add_settings_field(
+            'generate_screenshot_api_key',
+            'API Key',
+            array( $this, 'api_key_field_callback' ),
+            'screenshot-configs',
+            'generate_screenshot_settings_section'
+        );
+    }
+
+    public function api_key_field_callback() {
+        $api_key = get_option( 'generate_screenshot_api_key' );
+        echo '<input type="text" name="generate_screenshot_api_key" value="' . esc_attr( $api_key ) . '" />';
     }
 }
