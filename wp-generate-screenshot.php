@@ -3,7 +3,7 @@
  * Plugin Name: Generate Screenshot
  * Description: Adds a "Generate Screenshot" option to post types, uses apiflash.com to capture screenshots and set them as featured images.
  * Version: 1.0.0
- * Author: Your Name
+ * Author: Ellis LaMay
  * Text Domain: wp-generate-screenshot
  */
 
