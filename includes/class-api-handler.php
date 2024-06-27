@@ -10,38 +10,12 @@ class WP_Generate_Screenshot_API_Handler {
             error_log('Screenshot API key is not set.');
             return false;
         }
-
-        $options = get_option('generate_screenshot_screenshot_settings', array());
-
-        $params = array(
-            'access_key' => $access_key,
-            'url' => get_permalink($post->ID)
-        );
-
-        $api_params = array(
-            'format', 'width', 'height', 'fresh', 'full_page', 'quality', 'delay', 'scroll_page',
-            'ttl', 'response_type', 'thumbnail_width', 'crop', 'no_cookie_banners', 'no_ads',
-            'no_tracking', 'scale_factor', 'element', 'element_overlap', 'user_agent', 'extract_html',
-            'extract_text', 'transparent', 'wait_for', 'wait_until', 'fail_on_status', 'accept_language',
-            'css', 'cookies', 'proxy', 'latitude', 'longitude', 'accuracy', 'js', 'headers', 'time_zone',
-            'ip_location', 's3_access_key_id', 's3_secret_key', 's3_bucket', 's3_key', 's3_endpoint', 's3_region'
-        );
-
-        foreach ($api_params as $param) {
-            if (isset($options[$param]) && !empty($options[$param])) {
-                $params[$param] = $options[$param];
-            }
-        }
-
-        $api_url = "https://api.apiflash.com/v1/urltoimage?" . http_build_query($params);
-
-        // Log the API request URL for debugging
-        error_log('API Request URL: ' . $api_url);
+        
+        $post_url = urlencode(get_permalink($post->ID));
+        $element = urlencode('.demo-ui-block');
+        $api_url = "https://api.apiflash.com/v1/urltoimage?access_key={$access_key}&url={$post_url}&format=webp&fresh=true&quality=100&element={$element}";
 
         $response = wp_remote_get($api_url, array('timeout' => 120));
-
-        // Log the raw response for debugging
-        error_log('API Response: ' . print_r($response, true));
 
         if (is_wp_error($response)) {
             error_log('Screenshot API Error: ' . $response->get_error_message());
