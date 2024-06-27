@@ -20,7 +20,21 @@ This plugin adds a "Generate Screenshot" option to specified post types. It uses
 2. Activate the plugin through the 'Plugins' screen in WordPress.
 3. Define the post types in `class-generate-screenshot.php` where you want the "Generate Screenshot" functionality to be applied.
 
+== File Structure ==
+wp-generate-screenshot/
+├── includes/
+│   ├── admin/
+│   │   ├── class-admin-settings.php
+│   │   ├── class-api-key-tab.php
+│   │   └── class-post-types-tab.php
+│   ├── class-generate-screenshot.php
+│   └── class-api-handler.php
+└── wp-generate-screenshot.php
+
 == Changelog ==
+
+== 1.2.0 ==
+* Added settings options to be able to select which post types the plugin hooks into.
 
 = 1.1.0 =
 * Removing API key from code and storing in database for better security and so users can save their own API keys.
