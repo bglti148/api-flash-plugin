@@ -28,37 +28,38 @@ class Generate_Screenshot {
         add_action( 'admin_init', array( $this, 'register_settings' ) );
     }
 
-    public function add_generate_screenshot_link( $actions, $post ) {
-        $post_types = array( 'post', 'page' ); // Modify post types here
-
-        if ( in_array( $post->post_type, $post_types ) ) {
-            $actions['generate_screenshot'] = '<a href="' . admin_url( 'admin.php?action=generate_screenshot&post=' . $post->ID ) . '">Generate Screenshot</a>';
+    public function add_generate_screenshot_link($actions, $post) {
+        $enabled_post_types = get_option('generate_screenshot_post_types', array());
+    
+        if (in_array($post->post_type, $enabled_post_types)) {
+            $actions['generate_screenshot'] = '<a href="' . admin_url('admin.php?action=generate_screenshot&post=' . $post->ID) . '">Generate Screenshot</a>';
         }
-
+    
         return $actions;
     }
 
     public function handle_generate_screenshot() {
-        if ( isset( $_GET['action'] ) && $_GET['action'] == 'generate_screenshot' && isset( $_GET['post'] ) ) {
-            $post_id = intval( $_GET['post'] );
-            $post = get_post( $post_id );
-
-            if ( in_array( $post->post_type, array( 'post', 'page' ) ) ) { // Modify post types here
-                $screenshot_url = $this->generate_screenshot_for_post( $post );
-
-                if ( $screenshot_url ) {
-                    $redirect_url = add_query_arg( array(
+        if (isset($_GET['action']) && $_GET['action'] == 'generate_screenshot' && isset($_GET['post'])) {
+            $post_id = intval($_GET['post']);
+            $post = get_post($post_id);
+            $enabled_post_types = get_option('generate_screenshot_post_types', array());
+    
+            if (in_array($post->post_type, $enabled_post_types)) {
+                $screenshot_url = $this->generate_screenshot_for_post($post);
+    
+                if ($screenshot_url) {
+                    $redirect_url = add_query_arg(array(
                         'post_type' => $post->post_type,
-                        'screenshot_url' => urlencode( $screenshot_url ),
-                    ), admin_url( 'edit.php' ) );
+                        'screenshot_url' => urlencode($screenshot_url),
+                    ), admin_url('edit.php'));
                 } else {
-                    $redirect_url = add_query_arg( array(
+                    $redirect_url = add_query_arg(array(
                         'post_type' => $post->post_type,
                         'screenshot_error' => 'true',
-                    ), admin_url( 'edit.php' ) );
+                    ), admin_url('edit.php'));
                 }
-
-                wp_redirect( $redirect_url );
+    
+                wp_redirect($redirect_url);
                 exit;
             }
         }
@@ -138,22 +139,36 @@ class Generate_Screenshot {
 
     public function add_settings_page() {
         add_options_page(
-            'Screenshot Configs',
-            'Screenshot Configs',
+            'WP Screenshot',
+            'WP Screenshot',
             'manage_options',
-            'screenshot-configs',
+            'wp-screenshot',
             array( $this, 'create_settings_page' )
         );
     }
 
     public function create_settings_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have sufficient permissions to access this page.'));
+        }
+    
+        $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'api_key';
         ?>
         <div class="wrap">
-            <h1>Screenshot Configs</h1>
+            <h1>WP Screenshot</h1>
+            <h2 class="nav-tab-wrapper">
+                <a href="?page=wp-screenshot&tab=api_key" class="nav-tab <?php echo $active_tab == 'api_key' ? 'nav-tab-active' : ''; ?>">API Key</a>
+                <a href="?page=wp-screenshot&tab=post_types" class="nav-tab <?php echo $active_tab == 'post_types' ? 'nav-tab-active' : ''; ?>">Post Types</a>
+            </h2>
             <form method="post" action="options.php">
                 <?php
-                settings_fields( 'generate_screenshot_settings_group' );
-                do_settings_sections( 'screenshot-configs' );
+                if ($active_tab == 'api_key') {
+                    settings_fields('wp_screenshot_api_settings');
+                    do_settings_sections('wp-screenshot-api');
+                } else {
+                    settings_fields('wp_screenshot_post_types_settings');
+                    do_settings_sections('wp-screenshot-post-types');
+                }
                 submit_button();
                 ?>
             </form>
@@ -162,22 +177,55 @@ class Generate_Screenshot {
     }
 
     public function register_settings() {
-        register_setting( 'generate_screenshot_settings_group', 'generate_screenshot_api_key' );
-
+        // API Key settings
+        register_setting('wp_screenshot_api_settings', 'generate_screenshot_api_key');
+    
         add_settings_section(
-            'generate_screenshot_settings_section',
+            'generate_screenshot_api_settings_section',
             'API Configuration',
             null,
-            'screenshot-configs'
+            'wp-screenshot-api'
         );
-
+    
         add_settings_field(
             'generate_screenshot_api_key',
             'API Key',
-            array( $this, 'api_key_field_callback' ),
-            'screenshot-configs',
-            'generate_screenshot_settings_section'
+            array($this, 'api_key_field_callback'),
+            'wp-screenshot-api',
+            'generate_screenshot_api_settings_section'
         );
+    
+        // Post Types settings
+        register_setting('wp_screenshot_post_types_settings', 'generate_screenshot_post_types');
+    
+        add_settings_section(
+            'generate_screenshot_post_types_section',
+            'Select Post Types',
+            array($this, 'post_types_section_callback'),
+            'wp-screenshot-post-types'
+        );
+    
+        add_settings_field(
+            'generate_screenshot_post_types',
+            'Enabled Post Types',
+            array($this, 'post_types_field_callback'),
+            'wp-screenshot-post-types',
+            'generate_screenshot_post_types_section'
+        );
+    }
+    
+    public function post_types_section_callback() {
+        echo '<p>Select the post types for which you want to enable screenshot generation:</p>';
+    }
+    
+    public function post_types_field_callback() {
+        $post_types = get_post_types(array('public' => true), 'objects');
+        $enabled_post_types = get_option('generate_screenshot_post_types', array());
+    
+        foreach ($post_types as $post_type) {
+            $checked = in_array($post_type->name, $enabled_post_types) ? 'checked' : '';
+            echo "<label><input type='checkbox' name='generate_screenshot_post_types[]' value='{$post_type->name}' {$checked}> {$post_type->label}</label><br>";
+        }
     }
 
     public function api_key_field_callback() {
