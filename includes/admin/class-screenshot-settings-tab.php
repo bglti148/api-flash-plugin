@@ -15,20 +15,41 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
 
     public function register_settings() {
         register_setting('wp_screenshot_settings_settings', 'generate_screenshot_settings');
-
+    
         add_settings_section(
             'generate_screenshot_settings_section',
             'Configure Screenshot Settings',
             array($this, 'settings_section_callback'),
             'wp-screenshot-settings'
         );
-
-        // You'll add specific settings fields here later
+    
+        add_settings_field(
+            'screenshot_format',
+            'Screenshot Format',
+            array($this, 'format_field_callback'),
+            'wp-screenshot-settings',
+            'generate_screenshot_settings_section'
+        );
     }
 
     public function settings_section_callback() {
         echo '<p>Configure various settings for screenshot generation:</p>';
     }
 
+    public function format_field_callback() {
+        $options = get_option('generate_screenshot_settings');
+        $format = isset($options['format']) ? $options['format'] : 'jpeg';
+        
+        $formats = array(
+            'jpeg' => 'JPEG',
+            'png' => 'PNG',
+            'webp' => 'WebP'
+        );
+    
+        foreach ($formats as $value => $label) {
+            echo "<label><input type='radio' name='generate_screenshot_settings[format]' value='{$value}' " . checked($format, $value, false) . " /> {$label}</label><br />";
+        }
+        echo "<p class='description'>Select the image format for the screenshots.</p>";
+    }
     // You'll add specific settings field callbacks here later
 }
