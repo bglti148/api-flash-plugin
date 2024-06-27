@@ -38,11 +38,11 @@ class Generate_Screenshot {
 
     public function add_generate_screenshot_link($actions, $post) {
         $enabled_post_types = get_option('generate_screenshot_post_types', array());
-    
+
         if (in_array($post->post_type, $enabled_post_types)) {
             $actions['generate_screenshot'] = '<a href="' . admin_url('admin.php?action=generate_screenshot&post=' . $post->ID) . '">Generate Screenshot</a>';
         }
-    
+
         return $actions;
     }
 
@@ -51,11 +51,11 @@ class Generate_Screenshot {
             $post_id = intval($_GET['post']);
             $post = get_post($post_id);
             $enabled_post_types = get_option('generate_screenshot_post_types', array());
-    
+
             if (in_array($post->post_type, $enabled_post_types)) {
                 $api_handler = new WP_Generate_Screenshot_API_Handler();
                 $screenshot_url = $api_handler->generate_screenshot_for_post($post);
-    
+
                 if ($screenshot_url) {
                     set_transient('wp_generate_screenshot_notice', array(
                         'type' => 'success',
@@ -66,7 +66,7 @@ class Generate_Screenshot {
                         'type' => 'error'
                     ), 60); // Store for 60 seconds
                 }
-    
+
                 wp_safe_redirect(admin_url('edit.php?post_type=' . $post->post_type));
                 exit;
             }
