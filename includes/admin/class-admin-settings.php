@@ -5,6 +5,7 @@ if (!defined('ABSPATH')) {
 
 require_once WP_GENERATE_SCREENSHOT_PLUGIN_DIR . 'includes/admin/class-api-key-tab.php';
 require_once WP_GENERATE_SCREENSHOT_PLUGIN_DIR . 'includes/admin/class-post-types-tab.php';
+require_once WP_GENERATE_SCREENSHOT_PLUGIN_DIR . 'includes/admin/class-screenshot-settings-tab.php';
 
 class WP_Generate_Screenshot_Admin_Settings {
     private $tabs = array();
@@ -13,6 +14,7 @@ class WP_Generate_Screenshot_Admin_Settings {
         $this->tabs = array(
             'api_key' => new WP_Generate_Screenshot_API_Key_Tab(),
             'post_types' => new WP_Generate_Screenshot_Post_Types_Tab(),
+            'screenshot_settings' => new WP_Generate_Screenshot_Screenshot_Settings_Tab(),
         );
     }
 
