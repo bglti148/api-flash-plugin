@@ -4,12 +4,12 @@ if (!defined('ABSPATH')) {
 }
 
 class WP_Generate_Screenshot_API_Handler {
-    public function generate_screenshot_for_post($post) {
-        $access_key = get_option('generate_screenshot_api_key');
-        if (!$access_key) {
-            error_log('Screenshot API key is not set.');
-            return false;
-        }
+        public function generate_screenshot_for_post($post) {
+            $access_key = get_option('generate_screenshot_api_key');
+            if (!$access_key) {
+                error_log('Screenshot API key is not set.');
+                return false;
+            }
         
         $post_url = urlencode(get_permalink($post->ID));
         $element = urlencode('.demo-ui-block');
@@ -17,8 +17,9 @@ class WP_Generate_Screenshot_API_Handler {
         // Get the screenshot settings
         $screenshot_settings = get_option('generate_screenshot_settings', array());
         $format = isset($screenshot_settings['format']) ? $screenshot_settings['format'] : 'jpeg';
+        $width = isset($screenshot_settings['width']) ? $screenshot_settings['width'] : '1920';
         
-        $api_url = "https://api.apiflash.com/v1/urltoimage?access_key={$access_key}&url={$post_url}&format={$format}&fresh=true&quality=100&element={$element}";
+        $api_url = "https://api.apiflash.com/v1/urltoimage?access_key={$access_key}&url={$post_url}&format={$format}&width={$width}&fresh=true&quality=100&element={$element}";
     
         $response = wp_remote_get($api_url, array('timeout' => 120));
     
