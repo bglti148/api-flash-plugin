@@ -18,9 +18,11 @@ class WP_Generate_Screenshot_API_Handler {
         $format = isset($screenshot_settings['format']) ? $screenshot_settings['format'] : 'jpeg';
         $width = isset($screenshot_settings['width']) ? $screenshot_settings['width'] : '1920';
         $type = isset($screenshot_settings['type']) ? $screenshot_settings['type'] : 'full_page';
-        
-        $api_url = "https://api.apiflash.com/v1/urltoimage?access_key={$access_key}&url={$post_url}&format={$format}&width={$width}&fresh=true&quality=100";
-        
+        $scale = isset($screenshot_settings['scale']) ? $screenshot_settings['scale'] : '1';
+
+        $api_url = "https://api.apiflash.com/v1/urltoimage?access_key={$access_key}&url={$post_url}&format={$format}&width={$width}&fresh=true&quality=100&scale_factor={$scale}";
+
+
         if ($type === 'full_page') {
             $api_url .= "&full_page=true";
         } elseif ($type === 'css_selector' && !empty($screenshot_settings['css_selector'])) {

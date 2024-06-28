@@ -46,12 +46,21 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
             'wp-screenshot-settings',
             'generate_screenshot_settings_section'
         );
+
+        add_settings_field(
+            'screenshot_scale',
+            'Screenshot Scale',
+            array($this, 'scale_field_callback'),
+            'wp-screenshot-settings',
+            'generate_screenshot_settings_section'
+        );
     }
 
     public function settings_section_callback() {
         echo '<p>Configure various settings for screenshot generation:</p>';
     }
 
+    
     // Call back function for image format setting
     public function format_field_callback() {
         $options = get_option('generate_screenshot_settings');
@@ -69,6 +78,7 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
         echo "<p class='description'>Select the image format for the screenshots.</p>";
     }
 
+    
     // Callback function for screenshot width setting
     public function width_field_callback() {
         $options = get_option('generate_screenshot_settings');
@@ -87,6 +97,7 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
         echo "<p class='description'>Select the width of the screenshot. This affects the resolution of the captured image.</p>";
     }
 
+    
     // Callback function for screenshot type
     public function type_field_callback() {
         $options = get_option('generate_screenshot_settings');
@@ -116,6 +127,22 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
         });
         </script>
         <?php
+    }
+
+    //Callback function for scale setting
+    public function scale_field_callback() {
+        $options = get_option('generate_screenshot_settings');
+        $scale = isset($options['scale']) ? $options['scale'] : '1';
+        
+        $scales = array(
+            '1' => '1x',
+            '2' => '2x',
+        );
+    
+        foreach ($scales as $value => $label) {
+            echo "<label><input type='radio' name='generate_screenshot_settings[scale]' value='{$value}' " . checked($scale, $value, false) . " /> {$label}</label><br />";
+        }
+        echo "<p class='description'>Select the scale factor for the screenshot. Higher values result in higher resolution images.</p>";
     }
 
     // You'll add specific settings field callbacks here later
