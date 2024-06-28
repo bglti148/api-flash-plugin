@@ -19,16 +19,27 @@ class WP_Generate_Screenshot_API_Handler {
         $width = isset($screenshot_settings['width']) ? $screenshot_settings['width'] : '1920';
         $type = isset($screenshot_settings['type']) ? $screenshot_settings['type'] : 'full_page';
         $scale = isset($screenshot_settings['scale']) ? $screenshot_settings['scale'] : '1';
-
+        $capture_overlapping = isset($screenshot_settings['capture_overlapping_elements']) ? $screenshot_settings['capture_overlapping_elements'] : 'false';
+    
         $api_url = "https://api.apiflash.com/v1/urltoimage?access_key={$access_key}&url={$post_url}&format={$format}&width={$width}&fresh=true&quality=100&scale_factor={$scale}";
+    
 
-
+        // Condition to display css selector text field
         if ($type === 'full_page') {
             $api_url .= "&full_page=true";
         } elseif ($type === 'css_selector' && !empty($screenshot_settings['css_selector'])) {
             $css_selector = urlencode($screenshot_settings['css_selector']);
             $api_url .= "&element={$css_selector}";
         }
+
+        // Condition to display element overlap setting
+        if ($type === 'full_page') {
+            $api_url .= "&full_page=true";
+        } elseif ($type === 'css_selector' && !empty($screenshot_settings['css_selector'])) {
+            $css_selector = urlencode($screenshot_settings['css_selector']);
+            $api_url .= "&element={$css_selector}&element_overlap={$capture_overlapping}";
+        }
+
     
         $response = wp_remote_get($api_url, array('timeout' => 120));
     
