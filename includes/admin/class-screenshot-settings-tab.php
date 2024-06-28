@@ -38,6 +38,14 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
             'wp-screenshot-settings',
             'generate_screenshot_settings_section'
         );
+
+        add_settings_field(
+            'screenshot_type',
+            'Screenshot Type',
+            array($this, 'type_field_callback'),
+            'wp-screenshot-settings',
+            'generate_screenshot_settings_section'
+        );
     }
 
     public function settings_section_callback() {
@@ -78,5 +86,37 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
         }
         echo "<p class='description'>Select the width of the screenshot. This affects the resolution of the captured image.</p>";
     }
+
+    // Callback function for screenshot type
+    public function type_field_callback() {
+        $options = get_option('generate_screenshot_settings');
+        $type = isset($options['type']) ? $options['type'] : 'full_page';
+        $css_selector = isset($options['css_selector']) ? $options['css_selector'] : '';
+        
+        echo "<label><input type='radio' name='generate_screenshot_settings[type]' value='full_page' " . checked($type, 'full_page', false) . " /> Full Page</label><br />";
+        echo "<label><input type='radio' name='generate_screenshot_settings[type]' value='css_selector' " . checked($type, 'css_selector', false) . " /> CSS Selector</label><br />";
+        
+        echo "<div id='css_selector_input' style='margin-top: 10px; " . ($type === 'css_selector' ? '' : 'display: none;') . "'>";
+        echo "<input type='text' name='generate_screenshot_settings[css_selector]' value='" . esc_attr($css_selector) . "' placeholder='Enter CSS selector' style='width: 100%;' />";
+        echo "</div>";
+        
+        echo "<p class='description'>Choose whether to capture the full page or a specific element using a CSS selector.</p>";
+        
+        // Add JavaScript to show/hide CSS selector input
+        ?>
+        <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            $('input[name="generate_screenshot_settings[type]"]').change(function() {
+                if ($(this).val() === 'css_selector') {
+                    $('#css_selector_input').show();
+                } else {
+                    $('#css_selector_input').hide();
+                }
+            });
+        });
+        </script>
+        <?php
+    }
+
     // You'll add specific settings field callbacks here later
 }

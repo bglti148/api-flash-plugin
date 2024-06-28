@@ -4,22 +4,29 @@ if (!defined('ABSPATH')) {
 }
 
 class WP_Generate_Screenshot_API_Handler {
-        public function generate_screenshot_for_post($post) {
-            $access_key = get_option('generate_screenshot_api_key');
-            if (!$access_key) {
-                error_log('Screenshot API key is not set.');
-                return false;
-            }
+    public function generate_screenshot_for_post($post) {
+        $access_key = get_option('generate_screenshot_api_key');
+        if (!$access_key) {
+            error_log('Screenshot API key is not set.');
+            return false;
+        }
         
         $post_url = urlencode(get_permalink($post->ID));
-        $element = urlencode('.demo-ui-block');
         
         // Get the screenshot settings
         $screenshot_settings = get_option('generate_screenshot_settings', array());
         $format = isset($screenshot_settings['format']) ? $screenshot_settings['format'] : 'jpeg';
         $width = isset($screenshot_settings['width']) ? $screenshot_settings['width'] : '1920';
+        $type = isset($screenshot_settings['type']) ? $screenshot_settings['type'] : 'full_page';
         
-        $api_url = "https://api.apiflash.com/v1/urltoimage?access_key={$access_key}&url={$post_url}&format={$format}&width={$width}&fresh=true&quality=100&element={$element}";
+        $api_url = "https://api.apiflash.com/v1/urltoimage?access_key={$access_key}&url={$post_url}&format={$format}&width={$width}&fresh=true&quality=100";
+        
+        if ($type === 'full_page') {
+            $api_url .= "&full_page=true";
+        } elseif ($type === 'css_selector' && !empty($screenshot_settings['css_selector'])) {
+            $css_selector = urlencode($screenshot_settings['css_selector']);
+            $api_url .= "&element={$css_selector}";
+        }
     
         $response = wp_remote_get($api_url, array('timeout' => 120));
     
