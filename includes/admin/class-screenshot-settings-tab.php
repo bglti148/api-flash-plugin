@@ -14,7 +14,11 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
     }
 
     public function register_settings() {
-        register_setting('wp_screenshot_settings_settings', 'generate_screenshot_settings');
+        register_setting(
+            'wp_screenshot_settings_settings',
+            'generate_screenshot_settings',
+            array($this, 'sanitize_settings')
+        );
     
         add_settings_section(
             'generate_screenshot_settings_section',
@@ -51,6 +55,22 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
             'screenshot_scale',
             'Screenshot Scale',
             array($this, 'scale_field_callback'),
+            'wp-screenshot-settings',
+            'generate_screenshot_settings_section'
+        );
+
+        add_settings_field(
+            'screenshot_delay',
+            'Delay (in seconds)',
+            array($this, 'delay_field_callback'),
+            'wp-screenshot-settings',
+            'generate_screenshot_settings_section'
+        );
+    
+        add_settings_field(
+            'screenshot_scroll_page',
+            'Scroll page before screenshot?',
+            array($this, 'scroll_page_field_callback'),
             'wp-screenshot-settings',
             'generate_screenshot_settings_section'
         );
@@ -159,5 +179,45 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
         echo "<p class='description'>Select the scale factor for the screenshot. Higher values result in higher resolution images.</p>";
     }
 
+    //Callback function for delay setting
+    public function delay_field_callback() {
+        $options = get_option('generate_screenshot_settings');
+        $delay = isset($options['delay']) ? $options['delay'] : 0;
+        
+        echo "<input type='number' name='generate_screenshot_settings[delay]' value='" . esc_attr($delay) . "' min='0' max='10' step='1' />";
+        echo "<p class='description'>Set the delay in seconds (0-10) to wait before capturing the screenshot.</p>";
+    }
+    
+    //Callback function for scroll page setting
+    public function scroll_page_field_callback() {
+        $options = get_option('generate_screenshot_settings');
+        $scroll_page = isset($options['scroll_page']) ? $options['scroll_page'] : 'false';
+        
+        echo "<label><input type='radio' name='generate_screenshot_settings[scroll_page]' value='true' " . checked($scroll_page, 'true', false) . " /> On</label><br />";
+        echo "<label><input type='radio' name='generate_screenshot_settings[scroll_page]' value='false' " . checked($scroll_page, 'false', false) . " /> Off</label><br />";
+        echo "<p class='description'>Choose whether to scroll through the entire page before capturing a screenshot.</p>";
+    }
+
+    //Scroll page setting field validation
+    public function sanitize_settings($input) {
+        $sanitized_input = array();
+    
+        // Sanitize delay
+        if (isset($input['delay'])) {
+            $sanitized_input['delay'] = intval($input['delay']);
+            if ($sanitized_input['delay'] < 0 || $sanitized_input['delay'] > 10) {
+                $sanitized_input['delay'] = 0; // Default to 0 if out of range
+            }
+        }
+    
+        // Sanitize scroll_page
+        if (isset($input['scroll_page'])) {
+            $sanitized_input['scroll_page'] = ($input['scroll_page'] === 'true') ? 'true' : 'false';
+        }
+    
+        // ... sanitize other fields ...
+    
+        return $sanitized_input;
+    }
     // You'll add specific settings field callbacks here later
 }
