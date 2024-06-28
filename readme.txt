@@ -21,6 +21,7 @@ This plugin adds a "Generate Screenshot" option to specified post types. It uses
 3. Define the post types in `class-generate-screenshot.php` where you want the "Generate Screenshot" functionality to be applied.
 
 == File Structure ==
+
 wp-generate-screenshot/
 ├── includes/
 │   ├── admin/
@@ -32,6 +33,9 @@ wp-generate-screenshot/
 └── wp-generate-screenshot.php
 
 == Changelog ==
+
+== 1.3.0 ==
+* Added screenshot configuration settings to provide more flexibility.
 
 == 1.2.0 ==
 * Added settings options to be able to select which post types the plugin hooks into.

@@ -76,12 +76,13 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
         );
     }
 
+    // Specific setting field callbacks
+
     public function settings_section_callback() {
         echo '<p>Configure various settings for screenshot generation:</p>';
     }
 
-    
-    // Call back function for image format setting
+    // Image format setting
     public function format_field_callback() {
         $options = get_option('generate_screenshot_settings');
         $format = isset($options['format']) ? $options['format'] : 'jpeg';
@@ -99,7 +100,7 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
     }
 
     
-    // Callback function for screenshot width setting
+    // Screenshot width setting
     public function width_field_callback() {
         $options = get_option('generate_screenshot_settings');
         $width = isset($options['width']) ? $options['width'] : '1920';
@@ -118,7 +119,7 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
     }
 
     
-    // Callback function for screenshot type
+    // Screenshot type
     public function type_field_callback() {
         $options = get_option('generate_screenshot_settings');
         $type = isset($options['type']) ? $options['type'] : 'full_page';
@@ -163,7 +164,7 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
 
 
 
-    //Callback function for scale setting
+    // Scale setting
     public function scale_field_callback() {
         $options = get_option('generate_screenshot_settings');
         $scale = isset($options['scale']) ? $options['scale'] : '1';
@@ -179,7 +180,7 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
         echo "<p class='description'>Select the scale factor for the screenshot. Higher values result in higher resolution images.</p>";
     }
 
-    //Callback function for delay setting
+    // Delay setting
     public function delay_field_callback() {
         $options = get_option('generate_screenshot_settings');
         $delay = isset($options['delay']) ? $options['delay'] : 0;
@@ -188,7 +189,7 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
         echo "<p class='description'>Set the delay in seconds (0-10) to wait before capturing the screenshot.</p>";
     }
     
-    //Callback function for scroll page setting
+    // Scroll page setting
     public function scroll_page_field_callback() {
         $options = get_option('generate_screenshot_settings');
         $scroll_page = isset($options['scroll_page']) ? $options['scroll_page'] : 'false';
@@ -198,6 +199,8 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
         echo "<p class='description'>Choose whether to scroll through the entire page before capturing a screenshot.</p>";
     }
 
+
+    //Santize fields and validate data
     //Scroll page setting field validation
     public function sanitize_settings($input) {
         $sanitized_input = array();
@@ -219,5 +222,4 @@ class WP_Generate_Screenshot_Screenshot_Settings_Tab {
     
         return $sanitized_input;
     }
-    // You'll add specific settings field callbacks here later
 }
